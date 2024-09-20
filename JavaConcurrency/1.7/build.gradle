@@ -28,3 +28,7 @@ tasks.test {
 application {
     mainClassName = javaMainClass
 }
+
+application {
+    mainClassName = javaMainClass
+}

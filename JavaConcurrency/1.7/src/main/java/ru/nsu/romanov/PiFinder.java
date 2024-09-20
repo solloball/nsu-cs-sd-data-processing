@@ -3,18 +3,20 @@ package ru.nsu.romanov;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Phaser;
+import java.util.stream.IntStream;
+
 
 public class PiFinder {
     private final Phaser phaser = new Phaser();
     List<Worker> workers;
 
     public PiFinder(int countIterations, int numberThreads) {
-        workers = new ArrayList<>(numberThreads);
+        workers = new ArrayList<>();
+        countIterations = Math.min(countIterations, numberThreads);
 
         int range = countIterations / numberThreads;
-        for (int i = 0; i < numberThreads; i++) {
-            workers.add(i, new Worker(phaser, i * range, (i + 1) * range));
-        }
+        IntStream.range(0, numberThreads)
+            .forEach(i -> workers.add(new Worker(phaser, i * range, (i + 1) * range)));
     }
 
     public double find() {
@@ -27,9 +29,9 @@ public class PiFinder {
         phaser.arriveAndAwaitAdvance();
 
         return workers.stream()
-                .map(Worker::getResult)
-                .reduce(Double::sum)
-                .orElse(Double.NaN);
+            .map(Worker::getResult)
+            .reduce(Double::sum)
+            .orElse(Double.NaN);
     }
 
 

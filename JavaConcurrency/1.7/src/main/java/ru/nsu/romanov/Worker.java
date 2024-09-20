@@ -4,19 +4,19 @@ import java.util.concurrent.Phaser;
 
 public class Worker implements Runnable {
     private final Phaser phaser;
-    private final int start;
-    private final int end;
+    private final int idxStart;
+    private final int idxEnd;
     private double res = 0;
 
-    public Worker(Phaser phaser, int start, int end) {
-        this.end = end;
-        this.start = start;
+    public Worker(Phaser phaser, int idxStart, int idxEnd) {
+        this.idxEnd = idxEnd;
+        this.idxStart = idxStart;
         this.phaser = phaser;
     }
 
     @Override
     public void run() {
-        for (int i = start; i < end; i++) {
+        for (int i = idxStart; i < idxEnd; i++) {
             res += iteration(i);
         }
         res *= 4;

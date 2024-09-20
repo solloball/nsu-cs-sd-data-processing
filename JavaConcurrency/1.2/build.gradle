@@ -1,0 +1,29 @@
+plugins {
+    id("java")
+    id("application")
+}
+
+group = "ru.nsu.romanov"
+version = "1.0-SNAPSHOT"
+
+repositories {
+    mavenCentral()
+}
+apply plugin : "java"
+ext {
+   javaMainClass = "ru.nsu.romanov.Main"
+}
+
+
+dependencies {
+    testImplementation(platform("org.junit:junit-bom:5.10.0"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+}
+
+tasks.test {
+    useJUnitPlatform()
+}
+
+application {
+    mainClassName = javaMainClass
+}

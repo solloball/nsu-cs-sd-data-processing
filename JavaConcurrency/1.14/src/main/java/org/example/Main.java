@@ -30,6 +30,19 @@ public class Main {
             }
         });
 
+        var moduleThread = new Thread(() -> {
+            while (true) {
+                try {
+                    aSem.acquire();
+                    bSem.acquire();
+                    System.out.println("module is ready");
+                    moduleSem.release();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        });
+
         var cThread = new Thread(() -> {
             while (true) {
                 try {
@@ -45,8 +58,7 @@ public class Main {
         var assembler = new Thread(() -> {
             while (true) {
                 try {
-                    aSem.acquire();
-                    bSem.acquire();
+                    moduleSem.acquire();
                     cSem.acquire();
                     System.out.println("Widget is ready");
                 } catch (InterruptedException e) {
@@ -58,6 +70,7 @@ public class Main {
         aThread.start();
         bThread.start();
         cThread.start();
+        moduleThread.start();
         assembler.start();
     }
 
@@ -67,4 +80,5 @@ public class Main {
     private static final Semaphore aSem = new Semaphore(0);
     private static final Semaphore bSem = new Semaphore(0);
     private static final Semaphore cSem = new Semaphore(0);
+    private static final Semaphore moduleSem = new Semaphore(0);
 }

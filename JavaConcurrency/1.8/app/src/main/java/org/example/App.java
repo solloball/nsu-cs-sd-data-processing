@@ -10,12 +10,13 @@ public class App {
 
         var solver = new PiFinder(numberThreads);
 
+        solver.find();
+
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             solver.finish();
             System.out.println(solver.printRes());
         }));
 
-        solver.find();
 
         try {
             Thread.currentThread().join();

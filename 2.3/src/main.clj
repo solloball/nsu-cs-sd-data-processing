@@ -1,15 +1,15 @@
 (ns main)
 
 (defn async-filter-chunk [pred chunk]
-  "Функция для создания future, фильтрующая каждый набор данных"
+  "Make future which will filter list"
   (future (doall (filter pred chunk))))
 
-(defn lazy-combine-futures [processed-results remaining-futures pred]
-  "Функция для ленивой обработки результатов futures"
-  (if-let [remaining (seq remaining-futures)]
+(defn lazyFutures [processed-results remainingFutures pred]
+  "lazy calculating futures"
+  (if-let [remaining (seq remainingFutures)]
 
     (lazy-seq (lazy-cat (deref (first processed-results))
-                        (lazy-combine-futures (rest processed-results) (rest remaining) pred)))
+                        (lazyFutures (rest processed-results) (rest remaining) pred)))
 
     (apply concat (map deref processed-results))))
 
@@ -17,13 +17,13 @@
   "Main implementation"
   ([pred coll]
    (let [n (.availableProcessors (Runtime/getRuntime))
-         chunk-size 60
+         chunkCount 100
 
-         parts (map doall (partition-all chunk-size coll))
+         parts (map doall (partition-all chunkCount coll))
 
          pool (map #(async-filter-chunk pred %) parts)]
 
-     (lazy-combine-futures pool (drop n pool) pred))))
+     (lazyFutures pool (drop n pool) pred))))
 
-(defn num-divisors [x]
+(defn numDivisors [x]
   (count (filter (comp zero? (partial rem x)) (range 1 (inc x)))))

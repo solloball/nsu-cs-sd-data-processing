@@ -1,30 +1,28 @@
 (ns test
   (:require [clojure.test :refer :all]
-            [main :refer [pfilter, num-divisors]]))
+            [main :refer [myFilter, numDivisors]]))
 
-(deftest test-pfilter-basic-big
+(deftest test-basic-big
   (testing
-    (is (= (pfilter even? (range 500))
+    (is (= (myFilter even? (range 500))
            (filter even? (range 500)))
-        "Просто чётные числа до 500"
         )
     )
   )
 
-(deftest test-pfilter-performance-big
-  (testing "Сравниваем скорость моего фильтра и библиотечного, оставляя только кратные 17 числа"
-    (println "Тест скорости на больших данных")
+(deftest test-performance-big
+  (testing
     (let [test-data (range)]
-      (println "Тестирования скорости обычного фильтра:")
-      (time (doall (take 10000 (filter #(> (num-divisors %) 10) test-data))))
-      (println "Тестирования скорости моего фильтра:")
-      (time (doall (take 10000 (pfilter #(> (num-divisors %) 10) test-data)))))))
+      (println "My Filter: ")
+      (time (doall (take 10000 (filter #(> (numDivisors %) 10) test-data))))
+      (println "Default filter: ")
+      (time (doall (take 10000 (myFilter #(> (numDivisors %) 10) test-data)))))))
 
 
 
-(deftest test-pfilter-lazy
-  (testing "Тесты на ленивость сравнения моего фильтра и библиотечному на бесконечной последовательности"
+(deftest test-lazy
+  (testing
     (let [infinite-coll (range)
-          result (pfilter even? infinite-coll)]
+          result (myFilter even? infinite-coll)]
       (is (= (take 10 result)
              (take 10 (filter even? infinite-coll)))))))

@@ -2,7 +2,7 @@
   (:require [clojure.test :refer :all]
             [main :refer [myFilter, numDivisors]]))
 
-(deftest test-basic-big
+(deftest testBasicBig
   (testing
     (is (= (myFilter even? (range 500))
            (filter even? (range 500)))
@@ -10,7 +10,7 @@
     )
   )
 
-(deftest test-performance-big
+(deftest testPerformanceBig
   (testing
     (let [test-data (range)]
       (println "My Filter: ")
@@ -20,7 +20,7 @@
 
 
 
-(deftest test-lazy
+(deftest testLazy
   (testing
     (let [infinite-coll (range)
           result (myFilter even? infinite-coll)]

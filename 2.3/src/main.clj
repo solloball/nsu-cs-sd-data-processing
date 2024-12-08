@@ -1,6 +1,6 @@
 (ns main)
 
-(defn async-filter-chunk [pred chunk]
+(defn asyncFilterChunk [pred chunk]
   "Make future which will filter list"
   (future (doall (filter pred chunk))))
 
@@ -21,7 +21,7 @@
 
          parts (map doall (partition-all chunkCount coll))
 
-         pool (map #(async-filter-chunk pred %) parts)]
+         pool (map #(asyncFilterChunk pred %) parts)]
 
      (lazyFutures pool (drop n pool) pred))))
 

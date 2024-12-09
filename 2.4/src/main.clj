@@ -57,7 +57,7 @@
   (new Thread
        (fn []
          (Thread/sleep duration)
-         (send (target-storage :worker) supply-msg amount)
+         (send (target-storage :worker) 1 amount)
          (recur))))
 
 (defn supply-msg
@@ -110,11 +110,11 @@
         (
          (Thread/sleep (state :duration))
          (send ((state :target-storage) :worker)
-               supply-msg (state :amount))
+               supply-msg (state :amount))                  ;; sr
          (assoc state :buffer (reduce-kv (fn [acc k _] (assoc acc k 0))
                                          {} bill))
          )
-        (catch Exception e
+        (catch Exception _
           (assoc state :buffer new_buffer))
         )
       )

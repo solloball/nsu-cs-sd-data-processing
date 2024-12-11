@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/JavaConcurrency/1.8/.gradle/.gradle.iml" filepath="$PROJECT_DIR$/JavaConcurrency/1.8/.gradle/.gradle.iml" />
+      <module fileurl="file://$PROJECT_DIR$/JavaConcurrency/1.8/app/src/main/main.iml" filepath="$PROJECT_DIR$/JavaConcurrency/1.8/app/src/main/main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/nsu-cs-sd-data-processing.iml" filepath="$PROJECT_DIR$/.idea/nsu-cs-sd-data-processing.iml" />
+      <module fileurl="file://$PROJECT_DIR$/JavaConcurrency/1.8/app/src/test/test.iml" filepath="$PROJECT_DIR$/JavaConcurrency/1.8/app/src/test/test.iml" />
+    </modules>
+  </component>
+</project>

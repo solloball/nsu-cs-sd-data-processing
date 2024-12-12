@@ -57,7 +57,7 @@
   (new Thread
        (fn []
          (Thread/sleep duration)
-         (send (target-storage :worker) 1 amount)
+         (send (target-storage :worker) supply-msg amount)
          (recur))))
 
 (defn supply-msg
@@ -82,43 +82,46 @@
         (send (consumer :worker) notify-msg ware (state :storage) amount))))
   state)                 ;worker itself is immutable, keeping configuration only
 
-(defn swap-values! [atom f]
-  (let [old_val @atom]
-    (swap! atom f)
-    [old_val @atom]))
-
 (defn notify-msg
   "A message that can be sent to a factory worker to notify that the provided 'amount' of 'ware's are
    just put to the 'storage-atom'."
-  ;; 'state' is for agent created in 'factory', see comments in its code for details
-  ;;The implementation should:
-  ;; - try to retrieve some items from the 'storage-atom' if necessary
-  ;; - if the retrieval is not successful, do not forget to handle validation exception correctly
-  ;; - if the retrieval is successful, put wares into the internal ':buffer'
-  ;; - when there are enough wares of all types according to :bill, a new cycle must be started with given duratin;
-  ;;   after it finished all the wares must be removed from the internal ':buffer' and ':target-storage' must be notified
-  ;;   with 'supply-msg'
-  ;; - return new agent state with possibly modified ':buffer' in any case!
   [state ware storage-atom amount]
-  (let [bill (state :bill)
-        buffer (state :buffer)
-        needed_amount (min (- (bill ware) (buffer ware)) amount)
-        [a_old a_new] (swap-values! storage-atom #(- % (min % needed_amount)))
-        new_buffer (assoc buffer ware (+ (buffer ware) (- a_old a_new)))]
-    (if (= bill new_buffer)
+  (let [bill (state :bill)                ;; Required wares for a cycle
+        buffer (state :buffer)             ;; Current wares already collected
+        ;updated-buffer (update buffer ware #(+ % amount))  ;; Update buffer with the newly received items
+        needed-amount (- (get bill ware 0) (get buffer ware 0))
+        take-amount (min needed-amount amount)
+        duration (state :duration)         ;; Cycle duration
+        target-storage (state :target-storage)] ;; The storage to notify
+    (if (> needed-amount 0)
       (try
-        (
-         (Thread/sleep (state :duration))
-         (send ((state :target-storage) :worker)
-               supply-msg (state :amount))                  ;; sr
-         (assoc state :buffer (reduce-kv (fn [acc k _] (assoc acc k 0))
-                                         {} bill))
-         )
-        (catch Exception _
-          (assoc state :buffer new_buffer))
-        )
+        (do
+          (swap! storage-atom #(- % take-amount))
+          (let [updated-buffer (update buffer ware #(+ % take-amount))]
+            ;; Check if we can start a new production cycle
+            (if (every? #(>= (updated-buffer %) (bill %)) (keys bill))
+              (let [reduced-buffer (reduce-kv
+                                     (fn [acc k v]
+                                       (assoc acc k (- (acc k) v))) ;; Decrease buffer after using wares
+                                     updated-buffer
+                                     bill)
+                    produced-amount (state :amount)]
+                (.start (new Thread
+                             (fn []
+                               (Thread/sleep duration)
+                               ;; Notify the target storage about the produced goods
+                               (send (target-storage :worker) supply-msg produced-amount)
+                               )
+                             ))
+                (assoc state :buffer reduced-buffer)
+                )
+              (assoc state :buffer updated-buffer) ;; If we cant start a new cycle - return p
+              )
+            )
+          )
+        (catch IllegalStateException e state)) ;; Return unmodified state if failed to take resouces
+      state
       )
-    (assoc state :buffer new_buffer)
     )
   )
 

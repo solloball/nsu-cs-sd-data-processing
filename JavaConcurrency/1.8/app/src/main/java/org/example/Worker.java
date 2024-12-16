@@ -27,6 +27,7 @@ public class Worker implements Runnable {
 
     public long getIdx() {
         return idx;
+        
     }
 
     public double getResult() {

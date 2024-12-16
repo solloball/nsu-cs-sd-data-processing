@@ -2,7 +2,7 @@
   (:require [clojure.test :refer :all]
             [task2 :refer :all]))
 
-; Функция для проверки, является ли число простым.
+; isPrime.
 (defn prime [n]
   (and (> n 1)
        (not-any? (divisible n)

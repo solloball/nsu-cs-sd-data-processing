@@ -1,6 +1,6 @@
 (ns test
   (:require [clojure.test :refer :all]
-            [main :refer [myFilter, numDivisors]]))
+            [main :refer [myFilter, heavyEven, numDivisors]]))
 
 (deftest testBasicBig
   (testing
@@ -14,7 +14,7 @@
   (testing
     (let [test-data (range)]
       (println "My Filter: ")
-      (time (doall (take 10000 (filter #(> (numDivisors %) 10) test-data))))
+      (time (doall (take 10000 (filter #(> (numDivisors %)) test-data))))
       (println "Default filter: ")
       (time (doall (take 10000 (myFilter #(> (numDivisors %) 10) test-data)))))))
 

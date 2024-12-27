@@ -1,29 +1,20 @@
 (ns main)
 
-(defn asyncFilterChunk [pred chunk]
-  "Make future which will filter list"
-  (future (doall (filter pred chunk))))
+(def partitionSize 100)
+(def parallelPartitionCnt 100)
 
-(defn lazyFutures [processed-results remainingFutures pred]
-  "lazy calculating futures"
-  (if-let [remaining (seq remainingFutures)]
+(defn myFilter [f coll]
+  (->>
+    (partition-all partitionSize coll)
+    (map #(future (doall (filter f %))))
+    (partition-all parallelPartitionCnt)
+    (map (fn [parts] (map deref (doall parts))))
+    (flatten)))
 
-    (lazy-seq (lazy-cat (deref (first processed-results))
-                        (lazyFutures (rest processed-results) (rest remaining) pred)))
 
-    (apply concat (map deref processed-results))))
 
-(defn myFilter
-  "Main implementation"
-  ([pred coll]
-   (let [n (.availableProcessors (Runtime/getRuntime))
-         chunkCount 100
-
-         parts (map doall (partition-all chunkCount coll))
-
-         pool (map #(asyncFilterChunk pred %) parts)]
-
-     (lazyFutures pool (drop n pool) pred))))
+(defn heavyEven [x]
+  (even? x))
 
 (defn numDivisors [x]
   (count (filter (comp zero? (partial rem x)) (range 1 (inc x)))))
